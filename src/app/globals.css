@@ -105,19 +105,44 @@ body {
 
 @layer components {
   .workflow-node {
-    @apply w-[min(20rem,85vw)] overflow-visible rounded-2xl border border-white/[0.08] bg-zinc-900/90 shadow-node backdrop-blur-sm;
+    @apply w-[min(20rem,85vw)] overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-900/90 shadow-node backdrop-blur-sm;
+  }
+
+  .workflow-node--scene {
+    @apply w-[min(22rem,92vw)];
   }
 
   .workflow-node-header {
-    @apply flex items-center gap-3 border-b border-white/[0.06] px-5 py-4;
+    @apply relative z-20 flex items-center gap-3 border-b border-white/[0.06] bg-zinc-900/95 px-5 py-4;
   }
 
   .workflow-node-body {
-    @apply p-5;
+    @apply relative z-0 p-5;
+  }
+
+  .workflow-node-fields {
+    @apply relative z-0;
+    isolation: isolate;
+  }
+
+  .workflow-node-media {
+    @apply relative z-10 border-t border-white/[0.06] bg-zinc-900/95 px-5 py-4;
   }
 
   .workflow-node-footer {
-    @apply border-t border-white/[0.06] bg-zinc-950/90 px-5 py-3 backdrop-blur-sm;
+    @apply relative z-30 border-t border-white/[0.06] bg-zinc-950 px-5 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.35)];
+  }
+
+  /* HeroUI lifts focused fields; keep stacking inside the fields block only */
+  .workflow-node-fields .workflow-field [data-slot="base"],
+  .workflow-node-fields .workflow-field [data-slot="input-wrapper"],
+  .workflow-node-fields .workflow-field [data-slot="main-wrapper"] {
+    position: relative;
+    z-index: 0 !important;
+  }
+
+  .workflow-node-fields .workflow-field:focus-within {
+    z-index: 1;
   }
 
   .workflow-label {

@@ -6,8 +6,10 @@ type WorkflowNodeShellProps = {
   badge: string;
   title: string;
   badgeTone?: "amber" | "sky" | "emerald";
+  className?: string;
   headerRight?: ReactNode;
   footer?: ReactNode;
+  media?: ReactNode;
   children: ReactNode;
 };
 
@@ -21,12 +23,14 @@ export function WorkflowNodeShell({
   badge,
   title,
   badgeTone = "amber",
+  className = "",
   headerRight,
   footer,
+  media,
   children,
 }: WorkflowNodeShellProps) {
   return (
-    <div className="workflow-node flex flex-col">
+    <div className={`workflow-node flex flex-col ${className}`.trim()}>
       <div className="workflow-node-header shrink-0 cursor-grab active:cursor-grabbing">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className={`workflow-badge ring-1 ${badgeTones[badgeTone]}`}>
@@ -39,7 +43,11 @@ export function WorkflowNodeShell({
         <div className="nodrag">{headerRight}</div>
       </div>
 
-      <div className="workflow-node-body min-h-0 flex-1">{children}</div>
+      <div className="workflow-node-body shrink-0">{children}</div>
+
+      {media ? (
+        <div className="workflow-node-media nodrag nowheel shrink-0">{media}</div>
+      ) : null}
 
       {footer ? (
         <div className="workflow-node-footer nodrag shrink-0">{footer}</div>

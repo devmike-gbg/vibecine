@@ -16,6 +16,13 @@ const statusConfig: Record<
   failed: { label: "Failed", color: "danger" },
 };
 
+const fieldClassNames = {
+  base: "relative z-0 w-full",
+  inputWrapper:
+    "relative z-0 border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
+  input: "text-zinc-100",
+};
+
 export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
   const scene = useAppStore((s) =>
     s.scenes.find((sc) => sc.id === data.sceneId)
@@ -33,6 +40,7 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
       <Handle type="target" position={Position.Left} className="!bg-amber-500" />
       <Handle type="source" position={Position.Right} className="!bg-amber-500" />
       <WorkflowNodeShell
+        className="workflow-node--scene"
         badge={shotIndex}
         title={scene.title}
         badgeTone="sky"
@@ -53,8 +61,19 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
             Submit to PixVerse
           </Button>
         }
+        media={
+          scene.videoUrl ? (
+            <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-black">
+              <video
+                src={scene.videoUrl}
+                controls
+                className="aspect-video w-full"
+              />
+            </div>
+          ) : undefined
+        }
       >
-        <div className="nodrag nowheel flex flex-col gap-4">
+        <div className="workflow-node-fields nodrag nowheel flex flex-col gap-4">
           <div className="workflow-field space-y-2">
             <span className="workflow-label">Title</span>
             <Input
@@ -62,11 +81,7 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
               value={scene.title}
               variant="bordered"
               onChange={(e) => updateScene(scene.id, { title: e.target.value })}
-              classNames={{
-                inputWrapper:
-                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-                input: "text-zinc-100",
-              }}
+              classNames={fieldClassNames}
             />
           </div>
 
@@ -80,12 +95,7 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
               onChange={(e) =>
                 updateScene(scene.id, { description: e.target.value })
               }
-              classNames={{
-                base: "w-full",
-                inputWrapper:
-                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-                input: "text-zinc-100",
-              }}
+              classNames={fieldClassNames}
             />
           </div>
 
@@ -99,27 +109,12 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
               onChange={(e) =>
                 updateScene(scene.id, { videoPrompt: e.target.value })
               }
-              classNames={{
-                base: "w-full",
-                inputWrapper:
-                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-                input: "text-zinc-100",
-              }}
+              classNames={fieldClassNames}
             />
           </div>
 
           {scene.errorMessage && (
             <p className="text-xs text-red-400">{scene.errorMessage}</p>
-          )}
-
-          {scene.videoUrl && (
-            <div className="overflow-hidden rounded-xl border border-white/[0.08]">
-              <video
-                src={scene.videoUrl}
-                controls
-                className="aspect-video w-full bg-black"
-              />
-            </div>
           )}
         </div>
       </WorkflowNodeShell>
