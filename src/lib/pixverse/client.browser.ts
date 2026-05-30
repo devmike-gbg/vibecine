@@ -1,12 +1,7 @@
 "use client";
 
 import { getPixverseApiKey } from "@/lib/pixverse/api-key";
-import {
-  PIXVERSE_BASE,
-  parsePixverseJson,
-  PixverseError,
-  VideoResult,
-} from "@/lib/pixverse/types";
+import { PIXVERSE_BASE, parsePixverseJson, PixverseError, VideoResult } from "@/lib/pixverse/types";
 
 function traceId(): string {
   return crypto.randomUUID();
@@ -15,9 +10,7 @@ function traceId(): string {
 function traceHeaders(id?: string): Record<string, string> {
   const key = getPixverseApiKey();
   if (!key) {
-    throw new PixverseError(
-      "Missing API key — set NEXT_PUBLIC_PIXVERSE_API_KEY in .env.local or paste key in header"
-    );
+    throw new PixverseError("Missing API key — set NEXT_PUBLIC_PIXVERSE_API_KEY in .env.local or paste key in header");
   }
   return {
     "API-KEY": key,
@@ -25,9 +18,7 @@ function traceHeaders(id?: string): Record<string, string> {
   };
 }
 
-export async function uploadImageFile(
-  file: File
-): Promise<{ img_id: number; img_url?: string }> {
+export async function uploadImageFile(file: File): Promise<{ img_id: number; img_url?: string }> {
   const form = new FormData();
   form.append("image", file, file.name);
 
@@ -51,9 +42,7 @@ export type TextToVideoParams = {
   motion_mode?: string;
 };
 
-export async function createTextToVideo(
-  params: TextToVideoParams
-): Promise<number> {
+export async function createTextToVideo(params: TextToVideoParams): Promise<number> {
   const res = await fetch(`${PIXVERSE_BASE}/video/text/generate`, {
     method: "POST",
     headers: {
@@ -76,9 +65,7 @@ export async function createTextToVideo(
   return json.Resp.video_id;
 }
 
-export async function createImageToVideo(
-  params: TextToVideoParams & { img_id: number }
-): Promise<number> {
+export async function createImageToVideo(params: TextToVideoParams & { img_id: number }): Promise<number> {
   const res = await fetch(`${PIXVERSE_BASE}/video/img/generate`, {
     method: "POST",
     headers: {
@@ -88,7 +75,7 @@ export async function createImageToVideo(
     body: JSON.stringify({
       img_id: params.img_id,
       prompt: params.prompt,
-      model: params.model ?? "v6",
+      model: params.model ?? "seedance-2.0-fast",
       duration: params.duration ?? 5,
       quality: params.quality ?? "540p",
       aspect_ratio: params.aspect_ratio ?? "16:9",
@@ -141,10 +128,7 @@ export async function getVideoResult(videoId: number): Promise<VideoResult> {
   return json.Resp;
 }
 
-export async function pollVideoUntilReady(
-  videoId: number,
-  onProgress?: (status: number) => void
-): Promise<string> {
+export async function pollVideoUntilReady(videoId: number, onProgress?: (status: number) => void): Promise<string> {
   const maxAttempts = 60;
   const intervalMs = 4000;
 
@@ -163,7 +147,7 @@ export async function pollVideoUntilReady(
       throw new PixverseError("Video was deleted", 6);
     }
 
-    await new Promise((r) => setTimeout(r, intervalMs));
+    await new Promise(r => setTimeout(r, intervalMs));
   }
 
   throw new PixverseError(`Timed out waiting for video ${videoId}`);

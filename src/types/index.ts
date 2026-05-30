@@ -11,9 +11,8 @@ export interface Scene {
 }
 
 export interface StitchResult {
-  clips: { sceneId: string; title: string; videoUrl: string }[];
-  totalDurationSec: number;
-  message: string;
+  finalVideoUrl: string;
+  clipCount: number;
 }
 
 export interface AppState {
@@ -22,6 +21,7 @@ export interface AppState {
   scenes: Scene[];
   isGeneratingStoryboard: boolean;
   isGeneratingVideos: boolean;
+  isStitching: boolean;
   statusMessage: string | null;
   stitchResult: StitchResult | null;
   setReferenceImage: (image: File | null) => void;
@@ -37,5 +37,6 @@ export interface AppState {
     options?: { fallbackToDemoOnError?: boolean }
   ) => Promise<void>;
   generateAllSceneClips: () => Promise<void>;
+  stitchFinalVideo: () => Promise<void>;
   resetState: () => void;
 }

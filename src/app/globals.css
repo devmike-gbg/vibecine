@@ -105,7 +105,7 @@ body {
 
 @layer components {
   .workflow-node {
-    @apply w-[min(20rem,85vw)] rounded-2xl border border-white/[0.08] bg-zinc-900/90 shadow-node backdrop-blur-sm;
+    @apply w-[min(20rem,85vw)] overflow-visible rounded-2xl border border-white/[0.08] bg-zinc-900/90 shadow-node backdrop-blur-sm;
   }
 
   .workflow-node-header {
@@ -113,7 +113,11 @@ body {
   }
 
   .workflow-node-body {
-    @apply space-y-4 p-5;
+    @apply p-5;
+  }
+
+  .workflow-node-footer {
+    @apply border-t border-white/[0.06] bg-zinc-950/90 px-5 py-3 backdrop-blur-sm;
   }
 
   .workflow-label {

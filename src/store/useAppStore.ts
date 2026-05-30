@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { AppState, StitchResult } from "@/types";
+import { AppState } from "@/types";
 import { MOCK_VIDEO_URL } from "@/lib/mock";
+import { stitchVideosViaApi } from "@/lib/media/stitch-api";
 
 export const useAppStore = create<AppState>((set, get) => ({
   referenceImage: null,
@@ -8,25 +9,23 @@ export const useAppStore = create<AppState>((set, get) => ({
   scenes: [],
   isGeneratingStoryboard: false,
   isGeneratingVideos: false,
+  isStitching: false,
   statusMessage: null,
   stitchResult: null,
-  setReferenceImage: (image) => set({ referenceImage: image }),
-  setStoryPrompt: (prompt) => set({ storyPrompt: prompt }),
-  setScenes: (scenes) => set({ scenes }),
+  setReferenceImage: image => set({ referenceImage: image }),
+  setStoryPrompt: prompt => set({ storyPrompt: prompt }),
+  setScenes: scenes => set({ scenes }),
   updateScene: (id, updates) =>
-    set((state) => ({
-      scenes: state.scenes.map((scene) =>
-        scene.id === id ? { ...scene, ...updates } : scene
-      ),
+    set(state => ({
+      scenes: state.scenes.map(scene => (scene.id === id ? { ...scene, ...updates } : scene)),
     })),
-  setStatusMessage: (statusMessage) => set({ statusMessage }),
-  setStitchResult: (stitchResult: StitchResult | null) => set({ stitchResult }),
-  setGeneratingStoryboard: (isGeneratingStoryboard) =>
-    set({ isGeneratingStoryboard }),
-  setGeneratingVideos: (isGeneratingVideos) => set({ isGeneratingVideos }),
+  setStatusMessage: statusMessage => set({ statusMessage }),
+  setStitchResult: stitchResult => set({ stitchResult }),
+  setGeneratingStoryboard: isGeneratingStoryboard => set({ isGeneratingStoryboard }),
+  setGeneratingVideos: isGeneratingVideos => set({ isGeneratingVideos }),
   generateSceneClip: async (sceneId, options) => {
     const state = get();
-    const scene = state.scenes.find((s) => s.id === sceneId);
+    const scene = state.scenes.find(s => s.id === sceneId);
     if (!scene) return;
 
     const prompt = scene.videoPrompt.trim();
@@ -49,7 +48,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const form = new FormData();
       form.append("prompt", prompt);
       form.append("poll", "true");
-      form.append("model", "v6");
+      form.append("model", "seedance-2.0-fast");
       form.append("quality", "720p");
       form.append("aspectRatio", "16:9");
       form.append("duration", String(duration));
@@ -96,8 +95,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       if ("mock" in json && json.mock) {
         set({
-          statusMessage:
-            "PixVerse is not configured or the request failed. Using mock video for demo.",
+          statusMessage: "PixVerse is not configured or the request failed. Using mock video for demo.",
         });
       } else {
         const mode = "mode" in json ? json.mode : undefined;
@@ -129,10 +127,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const scenesNow = get().scenes;
       const results = await Promise.allSettled(
-        scenesNow.map((s) => get().generateSceneClip(s.id, { fallbackToDemoOnError: true }))
+        scenesNow.map(s => get().generateSceneClip(s.id, { fallbackToDemoOnError: true })),
       );
 
-      const failed = results.filter((r) => r.status === "rejected").length;
+      const failed = results.filter(r => r.status === "rejected").length;
       if (failed) {
         set({ statusMessage: `Generated with ${failed} fallback demo clip(s)` });
       } else {
@@ -142,6 +140,32 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({ isGeneratingVideos: false });
     }
   },
+
+  stitchFinalVideo: async () => {
+    const ordered = get().scenes.filter(s => s.status === "completed" && s.videoUrl);
+
+    if (!ordered.length) {
+      set({ statusMessage: "Generate at least one clip first" });
+      return;
+    }
+
+    set({ isStitching: true, statusMessage: "Combining clips…" });
+
+    try {
+      const result = await stitchVideosViaApi(ordered.map(s => s.videoUrl!));
+      set({
+        stitchResult: result,
+        statusMessage: `Final video ready (${result.clipCount} clips)`,
+      });
+    } catch (err) {
+      set({
+        statusMessage: err instanceof Error ? err.message : "Failed to combine videos",
+      });
+    } finally {
+      set({ isStitching: false });
+    }
+  },
+
   resetState: () =>
     set({
       referenceImage: null,
@@ -149,6 +173,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       scenes: [],
       isGeneratingStoryboard: false,
       isGeneratingVideos: false,
+      isStitching: false,
       statusMessage: null,
       stitchResult: null,
     }),

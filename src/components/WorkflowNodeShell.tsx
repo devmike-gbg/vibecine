@@ -7,6 +7,7 @@ type WorkflowNodeShellProps = {
   title: string;
   badgeTone?: "amber" | "sky" | "emerald";
   headerRight?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
 };
 
@@ -16,21 +17,19 @@ const badgeTones = {
   emerald: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/25",
 };
 
-/** Drag from header; interactive children use nodrag/nowheel. */
 export function WorkflowNodeShell({
   badge,
   title,
   badgeTone = "amber",
   headerRight,
+  footer,
   children,
 }: WorkflowNodeShellProps) {
   return (
-    <div className="workflow-node">
-      <div className="workflow-node-header cursor-grab active:cursor-grabbing">
+    <div className="workflow-node flex flex-col">
+      <div className="workflow-node-header shrink-0 cursor-grab active:cursor-grabbing">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div
-            className={`workflow-badge ring-1 ${badgeTones[badgeTone]}`}
-          >
+          <div className={`workflow-badge ring-1 ${badgeTones[badgeTone]}`}>
             {badge}
           </div>
           <h3 className="truncate text-sm font-semibold tracking-tight text-zinc-100">
@@ -39,7 +38,12 @@ export function WorkflowNodeShell({
         </div>
         <div className="nodrag">{headerRight}</div>
       </div>
-      <div className="workflow-node-body">{children}</div>
+
+      <div className="workflow-node-body min-h-0 flex-1">{children}</div>
+
+      {footer ? (
+        <div className="workflow-node-footer nodrag shrink-0">{footer}</div>
+      ) : null}
     </div>
   );
 }

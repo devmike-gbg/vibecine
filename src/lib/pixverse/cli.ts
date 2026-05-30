@@ -17,7 +17,10 @@ export function isPixverseCliEnabled(): boolean {
   return isTruthyEnv(process.env.PIXVERSE_USE_CLI);
 }
 
-async function runPixverseJson(args: string[], timeoutMs: number): Promise<any> {
+async function runPixverseJson(
+  args: string[],
+  timeoutMs: number
+): Promise<Record<string, unknown>> {
   const stdout = await runCommand(cliCommand(), [...args, "--json"], timeoutMs);
   return parseLooseJson(stdout);
 }
@@ -74,7 +77,7 @@ async function runCommand(
   });
 }
 
-function parseLooseJson(text: string): any {
+function parseLooseJson(text: string): Record<string, unknown> {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start === -1 || end === -1 || end <= start) {
@@ -84,7 +87,16 @@ function parseLooseJson(text: string): any {
   return JSON.parse(jsonText);
 }
 
-function pickNumber(obj: any, keys: string[]): number | undefined {
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function pickNumber(
+  obj: Record<string, unknown> | undefined,
+  keys: string[]
+): number | undefined {
   for (const k of keys) {
     const v = obj?.[k];
     if (typeof v === "number" && Number.isFinite(v)) return v;
@@ -93,7 +105,10 @@ function pickNumber(obj: any, keys: string[]): number | undefined {
   return undefined;
 }
 
-function pickString(obj: any, keys: string[]): string | undefined {
+function pickString(
+  obj: Record<string, unknown> | undefined,
+  keys: string[]
+): string | undefined {
   for (const k of keys) {
     const v = obj?.[k];
     if (typeof v === "string" && v.trim()) return v.trim();
@@ -101,10 +116,14 @@ function pickString(obj: any, keys: string[]): string | undefined {
   return undefined;
 }
 
-function pickVideoUrl(obj: any): string | undefined {
+function pickVideoUrl(obj: Record<string, unknown> | undefined): string | undefined {
+  const output =
+    obj?.output && typeof obj.output === "object"
+      ? (obj.output as Record<string, unknown>)
+      : undefined;
   return (
     pickString(obj, ["video_url", "videoUrl", "url", "output_url", "outputUrl"]) ??
-    pickString(obj?.output, ["video", "url"])
+    pickString(output, ["video", "url"])
   );
 }
 
@@ -140,9 +159,10 @@ export async function createVideoWithCli(input: {
 
     const created = await runPixverseJson(args, timeoutMs);
 
+    const createdResp = asRecord(created.Resp);
     const videoId =
       pickNumber(created, ["video_id", "videoId", "id", "task_id", "taskId"]) ??
-      pickNumber(created?.Resp, ["video_id", "id"]);
+      pickNumber(createdResp, ["video_id", "id"]);
 
     if (!videoId) {
       throw new Error("PixVerse CLI did not return a video_id");
@@ -152,11 +172,11 @@ export async function createVideoWithCli(input: {
       return { videoId, videoUrl: "" };
     }
 
-    const directUrl = pickVideoUrl(created) ?? pickVideoUrl(created?.Resp);
+    const directUrl = pickVideoUrl(created) ?? pickVideoUrl(createdResp);
     if (directUrl) return { videoId, videoUrl: directUrl };
 
     const waited = await runPixverseJson(["task", "wait", String(videoId)], timeoutMs);
-    const waitedUrl = pickVideoUrl(waited) ?? pickVideoUrl(waited?.Resp);
+    const waitedUrl = pickVideoUrl(waited) ?? pickVideoUrl(asRecord(waited.Resp));
     if (!waitedUrl) {
       throw new Error("PixVerse CLI completed but no video URL was found");
     }

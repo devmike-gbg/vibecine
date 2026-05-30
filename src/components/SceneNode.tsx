@@ -41,81 +41,87 @@ export const SceneNode = ({ data }: NodeProps<{ sceneId: string }>) => {
             {status.label}
           </Chip>
         }
+        footer={
+          <Button
+            size="sm"
+            color="primary"
+            variant="flat"
+            className="w-full"
+            onPress={() => generateSceneClip(scene.id)}
+            isDisabled={scene.status === "generating"}
+          >
+            Submit to PixVerse
+          </Button>
+        }
       >
-        <div className="nodrag nowheel workflow-field space-y-2">
-          <span className="workflow-label">Title</span>
-          <Input
-            size="sm"
-            value={scene.title}
-            variant="bordered"
-            onChange={(e) => updateScene(scene.id, { title: e.target.value })}
-            classNames={{
-              inputWrapper:
-                "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-              input: "text-zinc-100",
-            }}
-          />
-        </div>
-
-        <div className="nodrag nowheel workflow-field space-y-2">
-          <span className="workflow-label">Description</span>
-          <Textarea
-            size="sm"
-            minRows={2}
-            value={scene.description}
-            variant="bordered"
-            onChange={(e) =>
-              updateScene(scene.id, { description: e.target.value })
-            }
-            classNames={{
-              inputWrapper:
-                "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-              input: "text-zinc-100",
-            }}
-          />
-        </div>
-
-        <div className="nodrag nowheel workflow-field space-y-2">
-          <span className="workflow-label">Video prompt</span>
-          <Textarea
-            size="sm"
-            minRows={2}
-            value={scene.videoPrompt}
-            variant="bordered"
-            onChange={(e) =>
-              updateScene(scene.id, { videoPrompt: e.target.value })
-            }
-            classNames={{
-              inputWrapper:
-                "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
-              input: "text-zinc-100",
-            }}
-          />
-        </div>
-
-        {scene.errorMessage && (
-          <p className="nodrag text-xs text-red-400">{scene.errorMessage}</p>
-        )}
-
-        {scene.videoUrl && (
-          <div className="pt-24 nodrag nowheel overflow-hidden rounded-xl border border-white/[0.08]">
-            <video
-              src={scene.videoUrl}
-              controls
-              className="aspect-video w-full bg-black"
+        <div className="nodrag nowheel flex flex-col gap-4">
+          <div className="workflow-field space-y-2">
+            <span className="workflow-label">Title</span>
+            <Input
+              size="sm"
+              value={scene.title}
+              variant="bordered"
+              onChange={(e) => updateScene(scene.id, { title: e.target.value })}
+              classNames={{
+                inputWrapper:
+                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
+                input: "text-zinc-100",
+              }}
             />
           </div>
-        )}
 
-        <Button
-          size="sm"
-          variant="flat"
-          className="nodrag mt-3 w-full"
-          onPress={() => generateSceneClip(scene.id)}
-          isDisabled={scene.status === "generating"}
-        >
-          Submit to PixVerse
-        </Button>
+          <div className="workflow-field space-y-2">
+            <span className="workflow-label">Description</span>
+            <Textarea
+              size="sm"
+              minRows={2}
+              value={scene.description}
+              variant="bordered"
+              onChange={(e) =>
+                updateScene(scene.id, { description: e.target.value })
+              }
+              classNames={{
+                base: "w-full",
+                inputWrapper:
+                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
+                input: "text-zinc-100",
+              }}
+            />
+          </div>
+
+          <div className="workflow-field space-y-2">
+            <span className="workflow-label">Video prompt</span>
+            <Textarea
+              size="sm"
+              minRows={2}
+              value={scene.videoPrompt}
+              variant="bordered"
+              onChange={(e) =>
+                updateScene(scene.id, { videoPrompt: e.target.value })
+              }
+              classNames={{
+                base: "w-full",
+                inputWrapper:
+                  "border-white/[0.08] bg-zinc-950/80 group-data-[focus=true]:border-amber-500/50",
+                input: "text-zinc-100",
+              }}
+            />
+          </div>
+
+          {scene.errorMessage && (
+            <p className="text-xs text-red-400">{scene.errorMessage}</p>
+          )}
+
+          {scene.videoUrl && (
+            <div className="overflow-hidden rounded-xl border border-white/[0.08]">
+              <video
+                src={scene.videoUrl}
+                controls
+                className="aspect-video w-full bg-black"
+              />
+            </div>
+          )}
+        </div>
       </WorkflowNodeShell>
     </>
   );

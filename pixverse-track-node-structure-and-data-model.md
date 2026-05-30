@@ -98,7 +98,7 @@ This keeps history, makes debugging easy, and supports “best-of” selection.
     "aspectRatio": "16:9",
     "defaultShotDurationSec": 6,
     "targetTotalDurationSec": 36,
-    "pixverseModel": "v6",
+    "pixverseModel": "seedance-2.0-fast",
     "resolution": "720p",
     "fps": 24
   }
@@ -190,7 +190,7 @@ Every user edit or TRAE rewrite creates a new revision:
   "prompt": "Cinematic neo-noir... (PixVerse prompt here)",
   "negativePrompt": "cartoon, low-res, extra limbs",
   "params": {
-    "model": "v6",
+    "model": "seedance-2.0-fast",
     "resolution": "720p",
     "seed": 12345,
     "cfgScale": 7,
@@ -305,23 +305,28 @@ Important: **do not block other shots** if one shot fails.
 ## 7) Minimal API surface (suggested)
 
 ### Project & inputs
+
 - `POST /projects`
 - `POST /projects/:id/assets` (upload character image)
 - `PUT /projects/:id/story`
 
 ### Storyboard
+
 - `POST /projects/:id/storyboard:generate` (TRAE generates shot list)
 - `PUT /shots/:shotId` (edit shot spec)
 
 ### Prompt + generation
+
 - `POST /shots/:shotId/revisions` (create revision: from user or TRAE)
 - `POST /revisions/:revId/generate` (start PixVerse job)
 - `GET /jobs/:jobId` (poll progress)
 
 ### Review
+
 - `POST /shots/:shotId/review` (approve/reject + select clip)
 
 ### Stitching & playback
+
 - `POST /projects/:id/render` (stitch timeline → final video)
 - `GET /projects/:id/scene-index`
 
@@ -345,4 +350,3 @@ Important: **do not block other shots** if one shot fails.
 - `TemplateProject` (starter flows for common teaser styles)
 - `PromptDiff` (store previous prompt + highlight changes for “TRAE efficiency” points)
 - `Safety/Policy` logging (store which prompts were blocked and why)
-

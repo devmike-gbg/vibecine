@@ -20,7 +20,7 @@ export type VideoResult = {
 export class PixverseError extends Error {
   constructor(
     message: string,
-    public code?: number
+    public code?: number,
   ) {
     super(message);
     this.name = "PixverseError";
@@ -44,15 +44,10 @@ function traceHeaders(traceId?: string): Record<string, string> {
   };
 }
 
-async function parsePixverseJson<T>(
-  res: Response
-): Promise<PixverseApiResponse<T>> {
+async function parsePixverseJson<T>(res: Response): Promise<PixverseApiResponse<T>> {
   const json = (await res.json()) as PixverseApiResponse<T>;
   if (!res.ok) {
-    throw new PixverseError(
-      json.ErrMsg || `PixVerse HTTP ${res.status}`,
-      json.ErrCode
-    );
+    throw new PixverseError(json.ErrMsg || `PixVerse HTTP ${res.status}`, json.ErrCode);
   }
   if (json.ErrCode !== 0) {
     throw new PixverseError(json.ErrMsg || "PixVerse request failed", json.ErrCode);
@@ -63,14 +58,10 @@ async function parsePixverseJson<T>(
 export async function uploadImage(
   buffer: Buffer,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ): Promise<{ img_id: number; img_url?: string }> {
   const form = new FormData();
-  form.append(
-    "image",
-    new Blob([new Uint8Array(buffer)], { type: mimeType }),
-    filename
-  );
+  form.append("image", new Blob([new Uint8Array(buffer)], { type: mimeType }), filename);
 
   const res = await fetch(`${PIXVERSE_BASE}/image/upload`, {
     method: "POST",
@@ -92,10 +83,7 @@ export type TextToVideoParams = {
   motion_mode?: string;
 };
 
-export async function createTextToVideo(
-  params: TextToVideoParams,
-  traceId?: string
-): Promise<number> {
+export async function createTextToVideo(params: TextToVideoParams, traceId?: string): Promise<number> {
   const res = await fetch(`${PIXVERSE_BASE}/video/text/generate`, {
     method: "POST",
     headers: {
@@ -122,10 +110,7 @@ export type ImageToVideoParams = TextToVideoParams & {
   img_id: number;
 };
 
-export async function createImageToVideo(
-  params: ImageToVideoParams,
-  traceId?: string
-): Promise<number> {
+export async function createImageToVideo(params: ImageToVideoParams, traceId?: string): Promise<number> {
   const res = await fetch(`${PIXVERSE_BASE}/video/img/generate`, {
     method: "POST",
     headers: {
@@ -135,7 +120,7 @@ export async function createImageToVideo(
     body: JSON.stringify({
       img_id: params.img_id,
       prompt: params.prompt,
-      model: params.model ?? "v6",
+      model: params.model ?? "seedance-2.0-fast",
       duration: params.duration ?? 5,
       quality: params.quality ?? "540p",
       motion_mode: params.motion_mode ?? "normal",
@@ -163,7 +148,7 @@ export async function createFusionVideo(
     quality?: string;
     aspect_ratio?: string;
   },
-  traceId?: string
+  traceId?: string,
 ): Promise<number> {
   const res = await fetch(`${PIXVERSE_BASE}/video/fusion/generate`, {
     method: "POST",
@@ -186,10 +171,7 @@ export async function createFusionVideo(
   return json.Resp.video_id;
 }
 
-export async function getVideoResult(
-  videoId: number,
-  traceId?: string
-): Promise<VideoResult> {
+export async function getVideoResult(videoId: number, traceId?: string): Promise<VideoResult> {
   const res = await fetch(`${PIXVERSE_BASE}/video/result/${videoId}`, {
     method: "GET",
     headers: traceHeaders(traceId),
@@ -208,7 +190,7 @@ const STATUS_LABELS: Record<number, string> = {
 
 export async function pollVideoUntilReady(
   videoId: number,
-  options?: { maxAttempts?: number; intervalMs?: number }
+  options?: { maxAttempts?: number; intervalMs?: number },
 ): Promise<string> {
   const maxAttempts = options?.maxAttempts ?? 45;
   const intervalMs = options?.intervalMs ?? 4000;
@@ -231,11 +213,9 @@ export async function pollVideoUntilReady(
     }
 
     if (attempt < maxAttempts - 1) {
-      await new Promise((r) => setTimeout(r, intervalMs));
+      await new Promise(r => setTimeout(r, intervalMs));
     }
   }
 
-  throw new PixverseError(
-    `Timed out waiting for video ${videoId} (${STATUS_LABELS[5]})`
-  );
+  throw new PixverseError(`Timed out waiting for video ${videoId} (${STATUS_LABELS[5]})`);
 }

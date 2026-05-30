@@ -1,34 +1,99 @@
+import { execFile } from "child_process";
+import { mkdtemp, readFile, rm, writeFile } from "fs/promises";
+import os from "os";
+import path from "path";
+import { promisify } from "util";
+import ffmpegStatic from "ffmpeg-static";
 import { NextResponse } from "next/server";
 
-/** Returns ordered clip URLs for client playback / download (no server-side ffmpeg in MVP). */
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+const execFileAsync = promisify(execFile);
+
+function ffmpegBin(): string {
+  if (!ffmpegStatic) throw new Error("ffmpeg binary not available");
+  return ffmpegStatic;
+}
+
+function listLine(filePath: string): string {
+  return `file '${filePath.replace(/\\/g, "/").replace(/'/g, "'\\''")}'`;
+}
+
 export async function POST(request: Request) {
+  let workDir: string | undefined;
+
   try {
-    const { clips } = (await request.json()) as {
-      clips?: { sceneId: string; title: string; videoUrl: string }[];
-    };
+    const { videoUrls } = (await request.json()) as { videoUrls?: string[] };
+    const urls = videoUrls?.filter((u) => u?.trim()) ?? [];
 
-    if (!clips?.length) {
-      return NextResponse.json({ error: "clips array is required" }, { status: 400 });
+    if (!urls.length) {
+      return NextResponse.json({ error: "videoUrls required" }, { status: 400 });
     }
 
-    const valid = clips.filter((c) => c.videoUrl?.trim());
-    if (!valid.length) {
-      return NextResponse.json(
-        { error: "No valid video URLs to stitch" },
-        { status: 400 }
-      );
+    if (urls.length === 1) {
+      const res = await fetch(urls[0]);
+      if (!res.ok) {
+        return NextResponse.json({ error: "Download failed" }, { status: 502 });
+      }
+      const buffer = Buffer.from(await res.arrayBuffer());
+      return new NextResponse(buffer, {
+        headers: {
+          "Content-Type": "video/mp4",
+          "Content-Disposition": 'inline; filename="vibecine-final.mp4"',
+          "X-Clip-Count": "1",
+        },
+      });
     }
 
-    const perShotSec = Math.max(10, Math.ceil(30 / Math.max(1, valid.length)));
-    const totalDurationSec = valid.length * perShotSec;
+    workDir = await mkdtemp(path.join(os.tmpdir(), "vibecine-stitch-"));
+    const clipPaths: string[] = [];
 
-    return NextResponse.json({
-      clips: valid,
-      totalDurationSec,
-      message:
-        "Clips are ready for sequential playback. Server-side ffmpeg merge can be added later.",
+    for (let i = 0; i < urls.length; i++) {
+      const clipPath = path.join(workDir, `clip${i}.mp4`);
+      const res = await fetch(urls[i]);
+      if (!res.ok) {
+        throw new Error(`Could not download clip ${i + 1}`);
+      }
+      await writeFile(clipPath, Buffer.from(await res.arrayBuffer()));
+      clipPaths.push(clipPath);
+    }
+
+    const listPath = path.join(workDir, "list.txt");
+    await writeFile(listPath, clipPaths.map(listLine).join("\n"), "utf8");
+
+    const outputPath = path.join(workDir, "output.mp4");
+    await execFileAsync(ffmpegBin(), [
+      "-y",
+      "-f",
+      "concat",
+      "-safe",
+      "0",
+      "-i",
+      listPath,
+      "-c",
+      "copy",
+      outputPath,
+    ]);
+
+    const output = await readFile(outputPath);
+
+    return new NextResponse(output, {
+      headers: {
+        "Content-Type": "video/mp4",
+        "Content-Disposition": 'inline; filename="vibecine-final.mp4"',
+        "X-Clip-Count": String(urls.length),
+      },
     });
-  } catch {
-    return NextResponse.json({ error: "Failed to prepare stitch" }, { status: 500 });
+  } catch (err) {
+    console.error("[stitch]", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Stitch failed" },
+      { status: 500 }
+    );
+  } finally {
+    if (workDir) {
+      await rm(workDir, { recursive: true, force: true }).catch(() => {});
+    }
   }
 }
