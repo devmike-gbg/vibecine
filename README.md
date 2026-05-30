@@ -1,5 +1,7 @@
 # VibeCine (PixVerse Track MVP)
 
+> Hackathon submission summary table: [PROJECT_INFORMATION.md](./PROJECT_INFORMATION.md)
+
 VibeCine is a hackathon MVP that helps users turn a story idea into a short video by generating a storyboard (shots) and generating one PixVerse clip per shot, inside a workspace-style visual flow UI (React Flow).
 
 The key idea is to treat each node as a shot (not a single frame). This makes the workflow regeneration-friendly: if shot 3 is bad, regenerate shot 3 only, keep the rest.
