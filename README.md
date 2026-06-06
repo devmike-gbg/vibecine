@@ -1,78 +1,100 @@
-# VibeCine (PixVerse Track MVP)
+# VibeCine
 
-**[TRAE DEMO WALL — Vote & view project](https://intl.traedemo.com/en-US/works/22)**
+**Turn a story + character image into a multi-shot video — with per-shot control, not one long prompt.**
 
-[![VibeCine on TRAE DEMO WALL](docs/trae-demo-wall.png)](https://intl.traedemo.com/en-US/works/22)
+[![1st Prize — Demo Wall Popularity Track](https://img.shields.io/badge/🏆_1st_Prize-Demo_Wall_Popularity-gold?style=for-the-badge&labelColor=1a1a2e)](https://intl.traedemo.com/en-US/works/22)
+[![TRAE SOLO Vietnam 2026](https://img.shields.io/badge/Unbound_Creativity-TRAE_SOLO_Vietnam_2026-6366f1?style=for-the-badge)](https://intl.traedemo.com/en-US/works/22)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React Flow](https://img.shields.io/badge/React_Flow-Visual_Workspace-ff0072?style=flat-square)](https://reactflow.dev/)
+[![PixVerse](https://img.shields.io/badge/PixVerse-Video_Generation-0ea5e9?style=flat-square)](https://pixverse.ai/)
 
-> Hackathon submission summary table: [PROJECT_INFORMATION.md](./PROJECT_INFORMATION.md)
+---
 
-VibeCine is a hackathon MVP that helps users turn a story idea into a short video by generating a storyboard (shots) and generating one PixVerse clip per shot, inside a workspace-style visual flow UI (React Flow).
+## 🏆 Award
 
-The key idea is to treat each node as a shot (not a single frame). This makes the workflow regeneration-friendly: if shot 3 is bad, regenerate shot 3 only, keep the rest.
+> **1st Prize Winner — Demo Wall Popularity Track**  
+> *Unbound Creativity with TRAE SOLO Vietnam 2026*  
+> Issued by **Trae × MiniMax** · May 2026
 
-Target demo requirement: final story duration >= 30 seconds (for example 4 shots x 10 seconds).
+VibeCine won **1st place** in the Demo Wall Popularity Track at **Unbound Creativity Vietnam 2026** for TRAE SOLO, alongside **Cường Mê AI**, at the **TikTok Vietnam Office** in Ho Chi Minh City (The Nexus).
 
-## Demo Video
+| | |
+|---|---|
+| **Demo Wall** | [intl.traedemo.com/en-US/works/22](https://intl.traedemo.com/en-US/works/22) |
+| **Repository** | [github.com/trae-hackathon-solo/vibecine](https://github.com/trae-hackathon-solo/vibecine) |
+| **Demo video** | [YouTube — full walkthrough](https://www.youtube.com/watch?v=2rFcfjQH7PM) |
 
-### YouTube
+[![VibeCine on TRAE Demo Wall](docs/trae-demo-wall.png)](https://intl.traedemo.com/en-US/works/22)
 
-**[Watch on YouTube](https://www.youtube.com/watch?v=2rFcfjQH7PM)**
+---
 
-[![Watch the VibeCine demo on YouTube](https://img.youtube.com/vi/2rFcfjQH7PM/hqdefault.jpg)](https://www.youtube.com/watch?v=2rFcfjQH7PM)
+## What is VibeCine?
 
-## Creative Concept / Problem Statement
+VibeCine is a web app that turns a **story prompt** and a **character reference image** into a **short multi-shot video**. TRAE generates a storyboard of 3–5 shots; you edit each shot in visual node cards, generate clips with PixVerse (per shot or batch), preview inline, then **merge everything into one final MP4** via server-side ffmpeg.
 
-In text-to-video hackathon demos, the biggest pain points are:
+Built in a tight hackathon window — no database, no auth, full end-to-end demo.
 
-- The output feels disjointed between shots
-- The character identity drifts (face/outfit/lighting)
-- A single long prompt is harder to control and harder to regenerate partially
+```
+Story + character image  →  TRAE storyboard  →  PixVerse clips  →  ffmpeg merge  →  final MP4
+```
 
-VibeCine solves this with a clear, judge-friendly workflow:
+### Why it exists
 
-1) Upload a character reference image (identity anchor)
-2) Enter a story prompt
-3) TRAE generates a storyboard (3-5 shots for MVP)
-4) User edits each shot prompt
-5) Generate a clip per shot with PixVerse (CLI or API)
-6) Play the final story as sequential clips in a single player
+Single-prompt text-to-video is hard to steer:
 
-## Workflow (End to End)
+- Shots feel **disconnected**
+- Character **identity drifts** (face, outfit, lighting)
+- Fixing one bad moment means **regenerating the whole video**
 
-### Step 1. Inputs
+VibeCine fixes this with a **shot-based workflow**: reference image for identity, editable storyboard nodes, regenerate only the shots that fail, combine the rest into a final story. Iterate faster. Ship a judge-friendly demo.
 
-- Character reference image: the main character identity anchor
-- Story prompt: high-level premise, tone, and visual style
+---
 
-### Step 2. Storyboard (TRAE)
+## Demo
 
-TRAE generates a shot list. Each shot contains:
+### Watch the full walkthrough
 
-- title
-- scene description
-- video prompt (editable)
+[![Watch the VibeCine demo on YouTube](https://img.youtube.com/vi/2rFcfjQH7PM/maxresdefault.jpg)](https://www.youtube.com/watch?v=2rFcfjQH7PM)
 
-### Step 3. Edit Shots
+**[▶ Watch on YouTube](https://www.youtube.com/watch?v=2rFcfjQH7PM)**
 
-Each shot is editable in-place (Scene node cards). This is the “human-in-the-loop” step for quality control.
+### 60-second demo script
 
-### Step 4. Generate Clips (PixVerse)
+1. Upload a **character reference image**
+2. Paste a **story prompt**
+3. Click **Generate storyboard** — TRAE returns 3–5 editable shots
+4. Tweak shot prompts (optional)
+5. Click **Generate all videos** — one PixVerse clip per shot
+6. Click **Combine final video** — ffmpeg merges clips into one **30s+ MP4**
 
-- Per-shot: click “Submit to PixVerse” to generate that shot only
-- Batch: click “Generate all videos” to generate all shots
+---
 
-Continuity trick:
+## Workflow
 
-- For shot N, we prepend shot N-1 metadata (title/description/prompt) into shot N’s prompt string.
-- This increases character consistency and reduces “disjointed” transitions without changing the underlying generation call structure.
+```mermaid
+flowchart LR
+  A["📷 Character image<br/>+ story prompt"] --> B["🎬 TRAE storyboard<br/>3–5 shots"]
+  B --> C["✏️ Edit shot prompts<br/>React Flow nodes"]
+  C --> D["🎥 PixVerse clips<br/>per shot or batch"]
+  D --> E["🔗 ffmpeg stitch<br/>final MP4"]
+  E --> F["▶ Preview & download"]
+```
 
-### Step 5. Final Output (>= 30s)
+| Step | What happens |
+|------|--------------|
+| **Inputs** | Character reference image (identity anchor) + high-level story prompt |
+| **Storyboard** | TRAE generates shot list: title, scene description, editable video prompt |
+| **Edit** | Each shot is a React Flow node — human-in-the-loop quality control |
+| **Generate** | PixVerse creates one clip per shot; batch or individual regenerate |
+| **Output** | Server-side ffmpeg merges completed clips into a single downloadable MP4 (≥ 30s) |
 
-- Click **Combine final video** on the Final Output node to merge completed clips (server-side ffmpeg).
-- Preview and download the combined MP4 in the same node.
-- Shot duration is tuned so a 3–5 shot storyboard can reach **>= 30s** total.
+### Continuity trick
 
-## Architecture (Diagram)
+For shot *N*, we prepend shot *N−1* metadata (title, description, prompt) into shot *N*'s prompt string. This reduces character drift and disjointed transitions — without changing the underlying PixVerse call structure.
+
+---
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -89,92 +111,54 @@ flowchart LR
   Player --> UI
 ```
 
-## TRAE Usage Highlights (What We Show)
+---
 
-- Story prompt to storyboard: TRAE generates an initial 3-5 shot list (titles + descriptions + draft prompts) fast enough for a live demo.
-- Shot-first thinking: we treat each node as a shot (not a frame), which makes regeneration and review simple during a hackathon.
-- Prompt drafting and refinement: TRAE helps turn plain language scene intent into a more “PixVerse-friendly” video prompt (camera, motion, lighting, mood).
-- Continuity chaining: for shot N, we inject shot N-1 context (title/description/prompt) into shot N’s prompt string to reduce character drift and “disjointed” transitions.
-- Constraint enforcement: we tune per-shot duration (for example 10s minimum) so the final story reaches >= 30s even with a small number of shots.
-- Debug-friendly iteration: TRAE-assisted editing focuses on a loop that judges can follow (edit one shot, regenerate that shot, keep the rest unchanged).
-- Integration decisions under time pressure: we switched between PixVerse API vs PixVerse CLI depending on reliability and credit availability, and used TRAE to keep the workflow coherent.
-- Error-driven hardening: we used the failures encountered during development (Next.js client/server boundary errors, CLI spawn issues, CLI JSON parsing quirks) to improve the demo robustness and narrate the “engineering story” to judges.
+## How TRAE powered the build
 
-## How TRAE Helped Us During the Build
+Built under a **1–2 hour hackathon window**. TRAE shortened the loop from idea → runnable demo while keeping the workflow explainable to judges:
 
-This project was built under a tight 1-2 hour hackathon window. The biggest value TRAE added was shortening the loop from “idea -> runnable demo” while keeping the workflow explainable to judges:
+| Area | TRAE contribution |
+|------|-------------------|
+| **Product design** | Turned a rough idea into a shot-based workflow and data model |
+| **Storyboard** | Story prompt → 3–5 shot list with PixVerse-friendly video prompts |
+| **Prompt drafting** | Plain-language scene intent → camera, motion, lighting, mood |
+| **Continuity** | Shot-chaining strategy to reduce character drift across clips |
+| **Constraints** | Per-shot duration tuning so 3–5 shots reach ≥ 30s total |
+| **Debugging** | Next.js App Router pitfalls, CLI spawn issues, JSON parsing quirks |
+| **Integration** | Switched between PixVerse API vs CLI under time pressure; kept workflow coherent |
 
-- Turned a rough product idea into a shot-based workflow and data model quickly.
-- Helped debug Next.js App Router pitfalls (server vs client components) when we hit runtime errors.
-- Helped translate issues we encountered (PixVerse credits, CLI spawn quirks, JSON output parsing) into actionable fixes and a cleaner demo narrative.
+---
 
-## PixVerse Usage Highlights
+## Tech stack
 
-### PixVerse CLI (recommended for hackathon)
+| Layer | Choice |
+|-------|--------|
+| Framework | Next.js 15 (App Router), React 19, TypeScript |
+| UI | TailwindCSS, HeroUI v2, React Flow, Framer Motion |
+| State | Zustand |
+| Video | PixVerse CLI / API, ffmpeg-static (server-side stitch) |
+| Backend | None — no database, no auth, no external backend |
 
-CLI is great for hackathons because it outputs structured JSON and is easy to script. Example commands from PixVerse documentation:
+---
 
-```bash
-pixverse auth login
-pixverse auth status --json
-```
-
-Text-to-video:
-
-```bash
-pixverse create video --prompt "A sunset over ocean waves" --model v6 --quality 1080p --aspect-ratio 16:9 --duration 8 --audio --json
-```
-
-Image-to-video:
-
-```bash
-pixverse create video --prompt "Slow zoom in, cinematic lighting" --image ./character.png --duration 10 --json
-```
-
-### PixVerse Platform API (optional)
-
-API workflow is: upload image -> generate -> poll status -> get URL. In this MVP we primarily focus on CLI for speed.
-
-## Hackathon Issues We Hit (and Fixes)
-
-These are real issues we encountered while building the MVP:
-
-1) Next.js runtime error: createContext only works in Client Components
-   - Fix: move providers (HeroUIProvider) into a dedicated client Providers component.
-
-2) PixVerse API error: Insufficient balance / top up credits
-   - Cause: API credits are separate and can be empty.
-   - Fix: switch to CLI account credits or top up.
-
-3) Windows process error: spawn EINVAL
-   - Cause: spawning a .cmd shim directly can fail depending on environment.
-   - Fix: run PixVerse through cmd.exe or spawn the underlying command correctly.
-
-4) CLI parsing error: PixVerse CLI did not return JSON
-   - Cause: CLI may print JSON with extra logs/progress or use stderr.
-   - Fix: robust JSON extraction from mixed output (strip ANSI, detect JSON blocks).
-
-## Tech Stack
-
-- Next.js 15 (App Router)
-- React 19
-- TypeScript
-- TailwindCSS
-- HeroUI v2
-- React Flow
-- Zustand
-- No database, no auth, no external backend
-
-## Local Setup
+## Local setup
 
 ### Requirements
 
-- Node.js 20+
-- PixVerse CLI installed and authenticated
+- **Node.js 20+**
+- **PixVerse CLI** installed and authenticated
 
 ```bash
 npm install -g pixverse
 pixverse auth login
+```
+
+### Environment
+
+Copy `.env.example` and add your PixVerse API key:
+
+```bash
+cp .env.example .env.local
 ```
 
 ### Run
@@ -184,21 +168,81 @@ npm install
 npm run dev
 ```
 
-Open: http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000)
 
-## Demo Script (Fast)
+---
 
-1) Upload a character reference image
-2) Paste a story prompt
-3) Click “Generate storyboard”
-4) Edit shot prompts (optional)
-5) Click “Generate all videos”
-6) Click **Combine final video** to merge clips and preview the full story (30s+)
+## PixVerse integration
 
-## Key Files
+### CLI (recommended for hackathon)
 
-- Flow UI: `src/app/page.tsx`
-- State store: `src/store/useAppStore.ts`
-- Shot node UI: `src/components/SceneNode.tsx`
-- Final output player: `src/components/OutputNode.tsx`
-- Generate route: `src/app/api/generate-video/route.ts`
+Structured JSON output, easy to script:
+
+```bash
+pixverse auth login
+pixverse auth status --json
+```
+
+Text-to-video:
+
+```bash
+pixverse create video \
+  --prompt "A sunset over ocean waves" \
+  --model v6 --quality 1080p --aspect-ratio 16:9 \
+  --duration 8 --audio --json
+```
+
+Image-to-video:
+
+```bash
+pixverse create video \
+  --prompt "Slow zoom in, cinematic lighting" \
+  --image ./character.png \
+  --duration 10 --json
+```
+
+### Platform API (optional)
+
+Upload image → generate → poll status → get URL. The MVP primarily uses CLI for speed and reliability during demos.
+
+---
+
+## Key files
+
+| File | Purpose |
+|------|---------|
+| `src/app/page.tsx` | React Flow workspace |
+| `src/store/useAppStore.ts` | Global state |
+| `src/components/SceneNode.tsx` | Per-shot node UI |
+| `src/components/OutputNode.tsx` | Final output player + stitch trigger |
+| `src/app/api/generate-storyboard/route.ts` | TRAE storyboard generation |
+| `src/app/api/generate-video/route.ts` | PixVerse clip generation |
+| `src/app/api/stitch/route.ts` | ffmpeg merge to final MP4 |
+
+---
+
+## Hackathon war stories
+
+Real issues we hit — and fixed — during the build:
+
+1. **Next.js `createContext` error** — moved providers into a dedicated client `Providers` component
+2. **PixVerse API insufficient balance** — switched to CLI account credits
+3. **Windows `spawn EINVAL`** — run PixVerse through `cmd.exe` correctly
+4. **CLI JSON parsing** — robust extraction from mixed stdout/stderr with ANSI stripping
+
+These failures became part of the demo narrative — and made the final build more robust.
+
+---
+
+## Links
+
+- **Demo Wall:** [intl.traedemo.com/en-US/works/22](https://intl.traedemo.com/en-US/works/22)
+- **YouTube demo:** [youtube.com/watch?v=2rFcfjQH7PM](https://www.youtube.com/watch?v=2rFcfjQH7PM)
+- **Project summary:** [PROJECT_INFORMATION.md](./PROJECT_INFORMATION.md)
+
+---
+
+<p align="center">
+  <strong>🏆 1st Prize — Demo Wall Popularity Track</strong><br/>
+  <em>Unbound Creativity with TRAE SOLO Vietnam 2026 · Trae × MiniMax</em>
+</p>
