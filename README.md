@@ -16,13 +16,17 @@
 > *Unbound Creativity with TRAE SOLO Vietnam 2026*  
 > Issued by **Trae × MiniMax** · May 2026
 
-VibeCine won **1st place** in the Demo Wall Popularity Track at **Unbound Creativity Vietnam 2026** for TRAE SOLO, alongside **Cường Mê AI**, at the **TikTok Vietnam Office** in Ho Chi Minh City (The Nexus).
+VibeCine won **1st place** in the Demo Wall Popularity Track at **Unbound Creativity Vietnam 2026** for TRAE SOLO at the **TikTok Vietnam Office** in Ho Chi Minh City (The Nexus).
+
+**Built by [Phan Quang Minh Long](https://www.linkedin.com/in/phanquangminhlong) & [Cường Mê AI](https://www.facebook.com/CuongMeAI)**
 
 | | |
 |---|---|
 | **Demo Wall** | [intl.traedemo.com/en-US/works/22](https://intl.traedemo.com/en-US/works/22) |
 | **Repository** | [github.com/trae-hackathon-solo/vibecine](https://github.com/trae-hackathon-solo/vibecine) |
 | **Demo video** | [YouTube — full walkthrough](https://www.youtube.com/watch?v=2rFcfjQH7PM) |
+| **Phan Quang Minh Long** | [LinkedIn](https://www.linkedin.com/in/phanquangminhlong) |
+| **Cường Mê AI** | [Facebook](https://www.facebook.com/CuongMeAI) |
 
 [![VibeCine on TRAE Demo Wall](docs/trae-demo-wall.png)](https://intl.traedemo.com/en-US/works/22)
 
@@ -239,10 +243,13 @@ These failures became part of the demo narrative — and made the final build mo
 - **Demo Wall:** [intl.traedemo.com/en-US/works/22](https://intl.traedemo.com/en-US/works/22)
 - **YouTube demo:** [youtube.com/watch?v=2rFcfjQH7PM](https://www.youtube.com/watch?v=2rFcfjQH7PM)
 - **Project summary:** [PROJECT_INFORMATION.md](./PROJECT_INFORMATION.md)
+- **Phan Quang Minh Long:** [linkedin.com/in/phanquangminhlong](https://www.linkedin.com/in/phanquangminhlong)
+- **Cường Mê AI:** [facebook.com/CuongMeAI](https://www.facebook.com/CuongMeAI)
 
 ---
 
 <p align="center">
   <strong>🏆 1st Prize — Demo Wall Popularity Track</strong><br/>
-  <em>Unbound Creativity with TRAE SOLO Vietnam 2026 · Trae × MiniMax</em>
+  <em>Unbound Creativity with TRAE SOLO Vietnam 2026 · Trae × MiniMax</em><br/><br/>
+  Built by <a href="https://www.linkedin.com/in/phanquangminhlong">Phan Quang Minh Long</a> &amp; <a href="https://www.facebook.com/CuongMeAI">Cường Mê AI</a>
 </p>
